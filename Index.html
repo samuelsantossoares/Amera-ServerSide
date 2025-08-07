@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amera Wtf - Amera ServerSide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #8a2be2;
+      --primary-dark: #6a1cb0;
+      --secondary: #1a1a2e;
+      --dark: #0f0f1a;
+      --text: #e0e0ff;
+      --accent: #b967ff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease-out;
+    }
+
+    .loader {
+      text-align: center;
+    }
+
+    .logo-spin {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 20px;
+      animation: spin 3s linear infinite, pulse 2s ease-in-out infinite;
+    }
+
+    .loading-text {
+      color: var(--text);
+      font-size: 1rem;
+      letter-spacing: 3px;
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
+      50% { text-shadow: 0 0 20px rgba(138, 43, 226, 0.8), 0 0 30px rgba(185, 103, 255, 0.6); }
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .content {
+      display: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .content.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5%;
+      background-color: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--primary-dark);
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: color 0.3s, transform 0.3s;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background-color: var(--primary);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+      background: linear-gradient(135deg, rgba(15, 15, 26, 0.9) 0%, rgba(26, 26, 46, 0.8) 100%), url('https://placehold.co/1920x1080/0f0f1a/8a2be2?text=Roblox+Exploit+Tech') no-repeat center center/cover;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      color: white;
+      text-shadow: 0 0 15px rgba(138, 43, 226, 0.6);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.8rem 1.8rem;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(138, 43, 226, 0.6);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--text);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(138, 43, 226, 0.1);
+      transform: translateY(-3px);
+    }
+
+    /* Features Section */
+    .features {
+      padding: 5rem 5%;
+      background-color: var(--secondary);
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      color: var(--primary);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid rgba(138, 43, 226, 0.2);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 25px rgba(138, 43, 226, 0.2);
+      border-color: var(--primary);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      opacity: 0.8;
+    }
+
+    /* Download Section */
+    .download {
+      padding: 5rem 5%;
+      text-align: center;
+      background-color: var(--dark);
+    }
+
+    .download-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: rgba(255, 255, 255, 0.03);
+      border-radius: 15px;
+      padding: 3rem;
+      border: 1px solid rgba(138, 43, 226, 0.2);
+      box-shadow: 0 0 20px rgba(138, 43, 226, 0.1);
+    }
+
+    .download h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.2rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+    }
+
+    .download p {
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .discord-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      color: var(--text);
+      text-decoration: none;
+      margin-top: 1rem;
+    }
+
+    .discord-link:hover {
+      color: var(--primary);
+    }
+
+    .discord-icon {
+      width: 24px;
+      height: 24px;
+      background-color: var(--primary);
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.317 4.492a18.623 18.623 0 0 0-4.823-1.515.074.074 0 0 0-.078.037c-.21.375-.444.864-.608 1.25a19.772 19.772 0 0 0-5.618 0 11.882 11.882 0 0 0-.626-1.25.077.077 0 0 0-.078-.037A18.623 18.623 0 0 0 3.683 4.492a.07.07 0 0 0-.032.03C.52 9.519-.444 14.249.086 18.947a.082.082 0 0 0 .031.057 19.684 19.684 0 0 0 5.9 3.037.078.078 0 0 0 .084-.029c.465-.63.874-1.282 1.224-1.945a.076.076 0 0 0-.041-.106 13.265 13.265 0 0 1-1.89-1.093.077.077 0 0 1-.008-.123c.142-.106.285-.212.42-.323a.074.074 0 0 1 .078-.01c4.483 2.072 9.61 2.072 14.018 0a.074.074 0 0 1 .079.01c.135.111.278.217.42.323a.077.077 0 0 1-.008.123 13.1 13.1 0 0 1-1.89 1.093.077.077 0 0 0-.041.106c.35.663.759 1.315 1.224 1.945a.076.076 0 0 0 .084.029 19.684 19.684 0 0 0 5.9-3.037.08.08 0 0 0 .031-.057c.558-4.977-.415-9.707-3.548-14.452a.07.07 0 0 0-.032-.03zM8.02 15.278c-1.176 0-2.15-1.065-2.15-2.372 0-1.308.956-2.373 2.15-2.373s2.15 1.065 2.15 2.373c0 1.307-.956 2.372-2.15 2.372zm7.97 0c-1.176 0-2.15-1.065-2.15-2.372 0-1.308.956-2.373 2.15-2.373s2.15 1.065 2.15 2.373c0 1.307-.956 2.372-2.15 2.372z"/></svg>') no-repeat 50% 50%;
+      -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.317 4.492a18.623 18.623 0 0 0-4.823-1.515.074.074 0 0 0-.078.037c-.21.375-.444.864-.608 1.25a19.772 19.772 0 0 0-5.618 0 11.882 11.882 0 0 0-.626-1.25.077.077 0 0 0-.078-.037A18.623 18.623 0 0 0 3.683 4.492a.07.07 0 0 0-.032.03C.52 9.519-.444 14.249.086 18.947a.082.082 0 0 0 .031.057 19.684 19.684 0 0 0 5.9 3.037.078.078 0 0 0 .084-.029c.465-.63.874-1.282 1.224-1.945a.076.076 0 0 0-.041-.106 13.265 13.265 0 0 1-1.89-1.093.077.077 0 0 1-.008-.123c.142-.106.285-.212.42-.323a.074.074 0 0 1 .078-.01c4.483 2.072 9.61 2.072 14.018 0a.074.074 0 0 1 .079.01c.135.111.278.217.42.323a.077.077 0 0 1-.008.123 13.1 13.1 0 0 1-1.89 1.093.077.077 0 0 0-.041.106c.35.663.759 1.315 1.224 1.945a.076.076 0 0 0 .084.029 19.684 19.684 0 0 0 5.9-3.037.08.08 0 0 0 .031-.057c.558-4.977-.415-9.707-3.548-14.452a.07.07 0 0 0-.032-.03zM8.02 15.278c-1.176 0-2.15-1.065-2.15-2.372 0-1.308.956-2.373 2.15-2.373s2.15 1.065 2.15 2.373c0 1.307-.956 2.372-2.15 2.372zm7.97 0c-1.176 0-2.15-1.065-2.15-2.372 0-1.308.956-2.373 2.15-2.373s2.15 1.065 2.15 2.373c0 1.307-.956 2.372-2.15 2.372z"/></svg>') no-repeat 50% 50%;
+    }
+
+    /* Tutorials Section */
+    .tutorials {
+      padding: 5rem 5%;
+      background-color: var(--secondary);
+    }
+
+    .tutorials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .tutorial-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: transform 0.3s;
+      border: 1px solid rgba(138, 43, 226, 0.2);
+    }
+
+    .tutorial-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary);
+    }
+
+    .tutorial-img {
+      height: 180px;
+      background-color: rgba(138, 43, 226, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      color: var(--primary);
+    }
+
+    .tutorial-content {
+      padding: 1.5rem;
+    }
+
+    .tutorial-content h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+
+    .tutorial-content p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
+
+    /* Contact Section */
+    .contact {
+      padding: 5rem 5%;
+      text-align: center;
+      background-color: var(--dark);
+    }
+
+    .contact-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .contact p {
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: var(--secondary);
+      padding: 2rem 5%;
+      text-align: center;
+      border-top: 1px solid rgba(138, 43, 226, 0.2);
+    }
+
+    .footer p {
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate {
+      animation: fadeIn 1s ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1rem 5%;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+      }
+
+      .nav-links {
+        gap: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader">
+      <div class="logo-spin">Amera Wtf</div>
+      <div class="loading-text">CARREGANDO SERVERSIDE...</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content" id="content">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="logo">Amera Wtf</div>
+      <div class="nav-links">
+        <a href="#home">Início</a>
+        <a href="#features">Recursos</a>
+        <a href="#download">Download</a>
+        <a href="#tutorials">Tutoriais</a>
+        <a href="#contact">Contato</a>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <h1 class="animate">Amera ServerSide</h1>
+      <p class="animate delay-1">O executor ServerSide mais avançado para Roblox. Potente, seguro e fácil de usar.</p>
+      <div class="cta-buttons animate delay-2">
+        <a href="#download" class="btn btn-primary">Baixar Agora</a>
+        <a href="https://discord.gg/2ENZfYXGfp" target="_blank" class="btn btn-secondary">Entrar no Discord</a>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <h2 class="section-title">Recursos Principais</h2>
+      <div class="features-grid">
+        <div class="feature-card animate">
+          <div class="feature-icon">⚡</div>
+          <h3>Alta Performance</h3>
+          <p>Execução rápida e eficiente com mínima latência, garantindo a melhor experiência possível.</p>
+        </div>
+        <div class="feature-card animate delay-1">
+          <div class="feature-icon">🛡️</div>
+          <h3>Segurança Avançada</h3>
+          <p>Sistemas de proteção contra detecção e anti-ban integrados para maior durabilidade.</p>
+        </div>
+        <div class="feature-card animate delay-2">
+          <div class="feature-icon">🔧</div>
+          <h3>API Completa</h3>
+          <p>Interface robusta com suporte a scripts personalizados e integração com ferramentas externas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download Section -->
+    <section class="download" id="download">
+      <div class="download-container">
+        <h2>Baixe o Amera ServerSide</h2>
+        <p>O Amera ServerSide está disponível exclusivamente através do nosso servidor oficial do Discord. Junte-se à comunidade para acessar o download, tutoriais completos e suporte direto.</p>
+        <a href="https://discord.gg/2ENZfYXGfp" class="btn btn-primary" target="_blank">Acessar Servidor Discord</a>
+        <p style="margin-top: 1.5rem; font-size: 0.9rem;">
+          <strong>Nota:</strong> Todos os tutoriais de instalação e uso estão disponíveis no servidor Discord.
+        </p>
+        <a href="https://discord.gg/2ENZfYXGfp" class="discord-link" target="_blank">
+          <span class="discord-icon"></span>
+          Entre no nosso servidor Discord para download e suporte
+        </a>
+      </div>
+    </section>
+
+    <!-- Tutorials Section -->
+    <section class="tutorials" id="tutorials">
+      <h2 class="section-title">Tutoriais e Guias</h2>
+      <div class="tutorials-grid">
+        <div class="tutorial-card animate">
+          <div class="tutorial-img">🎮</div>
+          <div class="tutorial-content">
+            <h3>Instalação Básica</h3>
+            <p>Guia passo a passo para instalar o Amera ServerSide em seu sistema.</p>
+            <a href="https://discord.gg/2ENZfYXGfp" target="_blank" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Ver no Discord</a>
+          </div>
+        </div>
+        <div class="tutorial-card animate delay-1">
+          <div class="tutorial-img">⚙️</div>
+          <div class="tutorial-content">
+            <h3>Configuração Avançada</h3>
+            <p>Personalize seu ServerSide com configurações avançadas e otimizações.</p>
+            <a href="https://discord.gg/2ENZfYXGfp" target="_blank" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Ver no Discord</a>
+          </div>
+        </div>
+        <div class="tutorial-card animate delay-2">
+          <div class="tutorial-img">📚</div>
+          <div class="tutorial-content">
+            <h3>Boas Práticas</h3>
+            <p>Dicas e melhores práticas para usar o ServerSide de forma segura e eficiente.</p>
+            <a href="https://discord.gg/2ENZfYXGfp" target="_blank" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Ver no Discord</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+      <div class="contact-container">
+        <h2 class="section-title">Comunidade e Suporte</h2>
+        <p>Para suporte técnico, relatórios de bugs ou apenas para conversar com outros usuários, entre em nosso servidor oficial do Discord.</p>
+        <a href="https://discord.gg/2ENZfYXGfp" class="btn btn-primary" target="_blank">Entrar no Discord</a>
+        <p style="margin-top: 1.5rem; font-size: 0.9rem;">
+          <strong>Link do Servidor:</strong> <a href="https://discord.gg/2ENZfYXGfp" style="color: var(--primary);">https://discord.gg/2ENZfYXGfp</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2023 Amera Wtf - Amera ServerSide. Todos os direitos reservados.</p>
+      <p style="margin-top: 0.5rem; font-size: 0.8rem;">Compre, ultilize e fique com você, Amera ServerSide, Nunca te abandona.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Simular carregamento
+    document.addEventListener('DOMContentLoaded', function() {
+      const loadingScreen = document.getElementById('loadingScreen');
+      const content = document.getElementById('content');
+
+      // Simular tempo de carregamento (pode ser ajustado)
+      setTimeout(() => {
+        loadingScreen.style.opacity = '0';
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          content.classList.add('show');
+        }, 800);
+      }, 2500);
+
+      // Animação de rolagem suave
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            window.scrollTo({
+              top: target.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+
+      // Animação de entrada ao rolar
+      const animateOnScroll = () => {
+        const elements = document.querySelectorAll('.animate');
+        elements.forEach(el => {
+          const position = el.getBoundingClientRect();
+          if (position.top < window.innerHeight - 100) {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          }
+        });
+      };
+
+      // Inicializar animações
+      setTimeout(animateOnScroll, 1000);
+      window.addEventListener('scroll', animateOnScroll);
+    });
+  </script>
+</body>
+</html>
